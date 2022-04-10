@@ -100,9 +100,12 @@ export class UserResolver {
       }
     }
 
+    // (if it doesnt work in graphql devtools just try "request.credentials": "same-origin" or "include")
+
     // store user id session
     // this will set a cookie on the user
-    // keep them logged in
+    // keep them logged in after registration
+
     req.session.userId = user.id;
 
     return {
@@ -146,9 +149,9 @@ export class UserResolver {
     // 4. decrypt cookie with secret key and get key for redis
     // 5. make a request to redis
 
+    req.session.hello = 'hello from cookie';
     req.session.userId = user.id;
-    req.session.randomText = 'hi from cookie';
-
+    console.log('session:', req.session);
     return {
       user,
     };

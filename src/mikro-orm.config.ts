@@ -2,7 +2,7 @@ import { Post } from './entities/Post';
 import { User } from './entities/User';
 import { __prod__ } from './constants';
 import { MikroORM } from '@mikro-orm/core';
-import path from 'path';
+import path from 'path'; // fn build into node
 
 // separate config file is added to acces this via cli
 export default {

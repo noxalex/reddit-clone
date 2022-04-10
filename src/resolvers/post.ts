@@ -4,7 +4,8 @@ import { MyContext } from '../types';
 
 @Resolver()
 export class PostResolver {
-  @Query(() => [Post])
+  @Query(() => [Post]) // we need to set graphql type & typescript type for function
+  // typescript type
   posts(@Ctx() { em }: MyContext): Promise<Post[]> {
     return em.find(Post, {});
     // here we want to query posts from db and return them, and to do that,
@@ -18,6 +19,8 @@ export class PostResolver {
 
   @Mutation(() => Post)
   async createPost(
+    // we are not setting graphql type,
+    // type-graphql can infere type based on ts type
     @Arg('title') title: string,
     @Ctx() { em }: MyContext,
   ): Promise<Post> {

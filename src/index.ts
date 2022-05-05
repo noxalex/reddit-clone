@@ -1,8 +1,9 @@
+import 'reflect-metadata';
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MikroORM } from '@mikro-orm/core';
-import { __prod__ } from './constants';
+import { __prod__, COOKIE_NAME } from './constants';
 import mikroConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
@@ -36,7 +37,7 @@ const main = async () => {
 
   app.use(
     session({
-      name: 'qid', // cookie name
+      name: COOKIE_NAME,
       store: new RedisStore({
         client: redisClient,
         disableTouch: true,
@@ -60,12 +61,14 @@ const main = async () => {
       validate: false,
     }),
     // Apollo is giving us access to session inside resolvers by passing 'req' and 'res' objects
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }): MyContext => {
+      return { em: orm.em, req, res };
+    },
   });
 
   apolloServer.applyMiddleware({
     app,
-    cors: { origin: 'http://localhost:3000' },
+    cors: false,
   }); // create graphql endpoint on express
 
   app.listen(4000, () => {

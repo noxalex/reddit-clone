@@ -1,7 +1,7 @@
 import { Post } from './entities/Post';
 import { User } from './entities/User';
 import { __prod__ } from './constants';
-import { MikroORM } from '@mikro-orm/core';
+// import { MikroORM } from '@mikro-orm/core';
 import path from 'path'; // fn build into node
 
 // separate config file is added to acces this via cli
@@ -16,4 +16,7 @@ export default {
   user: 'aleksandr.panko',
   password: '',
   debug: !__prod__, // log what sql is being executed
-} as Parameters<typeof MikroORM.init>[0]; // to get the type that MikroORM.init expects as a first parameter
+};
+// as Parameters<typeof MikroORM.init>[0];
+
+// to get the type that MikroORM.init expects as a first parameter

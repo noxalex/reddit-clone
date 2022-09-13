@@ -1,10 +1,8 @@
 import 'reflect-metadata';
-import redis from 'redis';
+import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
-import { MikroORM } from '@mikro-orm/core';
 import { __prod__, COOKIE_NAME } from './constants';
-import mikroConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
@@ -13,10 +11,22 @@ import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
 import cors from 'cors';
+import { DataSource } from 'typeorm';
+import { Post } from './entities/Post';
+import { User } from './entities/User';
 
 const main = async () => {
-  const orm = await MikroORM.init(mikroConfig);
-  await orm.getMigrator().up();
+  const dataSource = new DataSource({
+    type: 'postgres',
+    database: 'reddit-clone2',
+    username: 'aleksandr.panko',
+    password: '',
+    logging: true,
+    synchronize: true,
+    entities: [Post, User],
+  });
+
+  await dataSource.initialize();
 
   const app = express();
 
@@ -25,7 +35,7 @@ const main = async () => {
   // so we can use session MW inside Apollo
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redis = new Redis();
 
   // cors is going to apply on all routes
   app.use(
@@ -39,7 +49,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient,
+        client: redis,
         disableTouch: true,
       }), // tell express session that we are using redis
       cookie: {
@@ -61,9 +71,7 @@ const main = async () => {
       validate: false,
     }),
     // Apollo is giving us access to session inside resolvers by passing 'req' and 'res' objects
-    context: ({ req, res }): MyContext => {
-      return { em: orm.em, req, res };
-    },
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({

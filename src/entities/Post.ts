@@ -1,25 +1,32 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BaseEntity,
+} from 'typeorm';
 import { ObjectType, Field } from 'type-graphql';
 
 // with decorators we are turning that class into graphql type Post
 @ObjectType()
-// Entity -> tells mikroORM that it's db table
+// Entity -> tells ORM that it's db table
 @Entity()
-export class Post {
+export class Post extends BaseEntity {
   // to expose that field in graphql schema
   @Field()
-  @PrimaryKey()
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Field(() => String)
-  @Property({ type: 'date' }) // Property - regular column
-  createdAt = new Date();
+  @CreateDateColumn()
+  createdAt: Date;
 
   @Field(() => String)
-  @Property({ type: 'date', onUpdate: () => new Date() })
-  updatedAt = new Date();
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Field()
-  @Property({ type: 'text' })
+  @Column()
   title!: string;
 }
